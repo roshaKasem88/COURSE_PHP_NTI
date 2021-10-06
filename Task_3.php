@@ -1,77 +1,99 @@
 <?php
+function clean($input){
+
+  $input = stripslashes($input);
+  $input = htmlspecialchars($input);
+  $input = trim($input);
+
+  return $input;
+
+}
 
 
-$nameError=$emailError=$passError=$addError=$genderError=$urlError="";
+$errors=[];
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (empty($_POST["name"])) {
-      $nameErr = "*Name is required";
-      echo $nameError;
-    } else {
-      $name = test_input($_POST["name"]);
-     
-    }
+  $name     =  clean($_POST['name']); 
+  $password =  clean($_POST['password']);
+  $email   =  clean($_POST['email']);
+  $address  =  clean($_POST['address']); 
+  $URL      =  clean($_POST['URL']);
+  if (empty($_POST["gender"]))
+  {
+   $errors['gender'] = "Gender is required";
+ }
+else
+  {
+   $gender = clean($_POST["gender"]);
+ }
+
+
+//name validation
+  if(empty($name)){
+    $errors['name'] = "name Required";
+ }
+ else {
+   $name=clean($_POST['name']);
+
+
+ }
     
-    if (empty($_POST["email"])) {
-      $emailErr = "Email is required";
-      echo $emailError;
-
-    } else {
-      $email = test_input($_POST["email"]);
-      // check if e-mail address is well-formed
-      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $emailErr = "Invalid email format";
-        echo $email;
-      }
-    }
-  
-    //Password Validation 
-    if (empty($_POST["password"])) {
-      $passError = "*Password is required";
-      echo $passError;
-
-    } else {
-      $password = test_input($_POST["password"]);
-      echo $password;
-    }
-  
+    # Email Validation ... 
+    if(empty($email)){
+      $errors['email'] = "email Required";
+  }
+  elseif(!filter_var($email,FILTER_VALIDATE_EMAIL)){
+      $errors['email'] = "Invalid Email";
+  }
+   
+   //Password Validation 
+   if (empty($_POST['password'])) {
+    $errors['password'] = "password Required";
+    
+  } else {
+    $password = clean($_POST['password']);
+    
+  }
       
+  //Linkedin url validation
     if (empty($_POST["URL"])) {
-      $urlErr = "Required URL";
-      echo $urlError;
+      $errors['URL'] = "Required URL";
+  
 
     } else {
-      $URL = test_input($_POST["website"]);
+      $URL = clean($_POST['URL']);
       if (!filter_var($URL, FILTER_VALIDATE_URL)) {
-          $websiteErr = "Invalid URL";
-          echo $URL;
+          $URL= "Invalid URL";
+          
         }
     }
     
   //Address Validation
-  if (empty($_POST["address"])) {
-      $addError = "*Address is required";
-      echo $addError;
+  if (empty($_POST['address'])) {
+      $errors['address']= "*Address is required";
+      
 
     } else {
-      $address = test_input($_POST["address"]);
+      $address = clean($_POST['address']);
     }
   
-   
-  
-    if (empty($_POST["gender"])) {
-      $genderErr = "Gender is required";
-      echo $genderErr;
+   //gender Validation
+    if (empty($_POST['gender'])) {
+      $errors['gender'] = "Gender is required";
+      
     } else {
-      $gender = test_input($_POST["gender"]);
+      $gender =clean($_POST['gender']);
     }
   }
+  if(count($errors) > 0){
+    foreach($errors as $key => $val ){
+        echo '* '.$key.' :  '.$val.'<br>';
+    }
+}else
+{
+    echo 'Valid Data';
+}
   
-  function test_input($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
-  }
+  
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -95,49 +117,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <div class="form-group">
     <label for="Inputname">Name:</label>
     <input type="text"  name="name"  class="form-control" id="exampleInputName" aria-describedby="" placeholder="Enter Name">
-    <span class="error">*Name is Required  </span>
+    <span class="error">*</span>
   
 </div>
 
 
   <div class="form-group">
     <label for="exampleInputEmail1">Email address:</label>
-    <input type="E-mail"   name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-    <span class="error">*email  is Required  </span>
+    <input type="E-mail"   name="email" class="form-control"  placeholder="Enter email" >
+    <span class="error">*</span>
   
 </div>
 
   <div class="form-group">
     <label for="exampleInputPassword1">Password:</label>
     <input type="password"   name = "password"  class="form-control" id="exampleInputPassword1" placeholder="Enter Your Password">
-    <span class="error">* Required password </span>
+    <span class="error">*</span>
   
 </div>
 
   <div class="form-group">
     <label for="address">Address:</label>
     <input type="text"   name="address" class="form-control"  placeholder="Enter Address">
-    <span class="error">*Address is Required  </span>
+    <span class="error">* </span>
   
 </div>
   <div class="form-group">
     <label>LinkedIn URL:</label>
-    <input type="URL"   name = "URL"  class="form-control"  placeholder="Enter Your Linkedin">
-    <span class="error">*LinkedIn URL is Required  </span>
+    <input type="URL"   name="URL"  class="form-control"  placeholder="Enter Your Linkedin">
+    <span class="error">* </span>
 
 </div>
 
   <div class="form-group">
     <label>Gender :</label>
-    <input type="radio"   name = "Gender"  placeholder="Gender" value="male">Male
-    <input type="radio"   name = "Gender"  placeholder="Gender" value="female">Female
-    <span class="error">*Gender is Required  </span>
+    <input type="radio"   name="gender" value="male" <?php if (isset($gender) && $gender=="male");?>>Male
+    <input type="radio"   name="gender" value="female" <?php if (isset($gender) && $gender=="female");?>>Female
+    <span class="error">* </span>
 
   </div>
  
- 
-  
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" class="btn btn-primary" name="Submit" value="Submit">Submit</button>
 </form>
 </div>
 
