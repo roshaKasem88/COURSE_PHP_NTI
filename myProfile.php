@@ -1,6 +1,11 @@
 <?php 
 
-print_r($_COOKIE);
+setcookie("user",$data,time()+86400,'/');
+echo $_COOKIE['user'];
+
+
+
+
 
 
 ?>
